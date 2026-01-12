@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Define your notification color here -->
+    <color name="notification_color">#2563EB</color>  <!-- Your accent color or any hex you like -->
+
+    <!-- Optional: Add more colors if needed -->
+    <color name="color_primary">#111827</color>
+    <color name="color_accent">#2563EB</color>
+</resources>
