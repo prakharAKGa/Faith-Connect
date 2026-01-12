@@ -205,8 +205,3 @@ Flutter Developer
 📜 License
 
 This project is for educational and demonstration purposes.
-
-
-- Add **architecture diagram**
-
-Just tell me 👍
