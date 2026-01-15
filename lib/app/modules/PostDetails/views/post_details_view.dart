@@ -159,13 +159,9 @@ class PostDetailsView extends GetView<PostDetailsController> {
                   children: [
                     Obx(
                       () => _ActionButton(
-                        icon: controller.isLiked.value
-                            ? Iconsax.heart5
-                            : Iconsax.heart,
+                        icon: controller.isLiked.value ? Iconsax.heart5 : Iconsax.heart,
                         count: controller.likesCount.value,
-                        color: controller.isLiked.value
-                            ? Colors.redAccent
-                            : scheme.onSurfaceVariant,
+                        color: controller.isLiked.value ? Colors.redAccent : scheme.onSurfaceVariant,
                         onTap: controller.likePost,
                       ),
                     ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -8,13 +9,21 @@ import 'package:http_parser/http_parser.dart';
 /// CLOUDINARY UPLOAD UTILITY — FAITHCONNECT
 /// =======================================================
 class CloudinaryUpload {
-  static const String cloudName = "dxwixlypx";
+  // 🌱 Loaded from .env
+  static final String cloudName =
+      dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
 
-  // Upload presets (must exist in Cloudinary dashboard)
-  static const String profilePreset = "fc_profile";
-  static const String postImagePreset = "fc_post_image";
-  static const String postVideoPreset = "fc_post_video";
-  static const String reelVideoPreset = "fc_reel_video";
+  static final String profilePreset =
+      dotenv.env['CLOUDINARY_PROFILE_PRESET'] ?? '';
+
+  static final String postImagePreset =
+      dotenv.env['CLOUDINARY_POST_IMAGE_PRESET'] ?? '';
+
+  static final String postVideoPreset =
+      dotenv.env['CLOUDINARY_POST_VIDEO_PRESET'] ?? '';
+
+  static final String reelVideoPreset =
+      dotenv.env['CLOUDINARY_REEL_VIDEO_PRESET'] ?? '';
 
   /// ─────────────────────────────────────────────
   /// UPLOAD IMAGE (Profile / Post Image)
@@ -83,7 +92,7 @@ class CloudinaryUpload {
   }
 
   /// =======================================================
-  /// INTERNAL UPLOADER (SMALL FILES ALLOWED ✅)
+  /// INTERNAL UPLOADER
   /// =======================================================
   static Future<String?> _uploadFile({
     required File file,
@@ -92,21 +101,13 @@ class CloudinaryUpload {
     required String resourceType, // image | video
   }) async {
     try {
-      // Basic existence check
+      if (cloudName.isEmpty || preset.isEmpty) {
+        throw Exception("❌ Cloudinary env variables missing");
+      }
+
       if (!file.existsSync()) {
         print("❌ File does not exist: ${file.path}");
         return null;
-      }
-
-      final fileSize = file.lengthSync();
-
-      // ⚠️ Log warning for very small files, but DO NOT BLOCK
-      if (fileSize < 20 * 1024) {
-        // 20 KB
-        print(
-          "⚠️ Warning: very small file (${fileSize} bytes). "
-          "Uploading anyway.",
-        );
       }
 
       final uri = Uri.parse(
@@ -151,8 +152,8 @@ class CloudinaryUpload {
 /// UPLOAD TYPES
 /// =======================================================
 enum CloudinaryUploadType {
-  profile,    // Profile photo
-  postImage,  // Post image
-  postVideo,  // Post video
-  reel,       // Reel video
+  profile,
+  postImage,
+  postVideo,
+  reel,
 }

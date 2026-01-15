@@ -31,8 +31,8 @@ class WorshiperHomeView extends GetView<WorshiperHomeController> {
     );
 
     if (confirmed == true) {
-      await TokenStorage().clear(); // Clear all secure storage (token, role, userId, theme)
-      Get.offAllNamed(Routes.LOGIN); // Or Routes.INITIAL - adjust to your login route
+      await TokenStorage().clear();
+      Get.offAllNamed(Routes.LOGIN);
       Get.snackbar("Logged Out", "See you soon!", backgroundColor: Colors.green);
     }
   }
@@ -58,7 +58,6 @@ class WorshiperHomeView extends GetView<WorshiperHomeController> {
           ),
         ),
         actions: [
-          // Theme toggle button (modern iconsax)
           Obx(
             () => IconButton(
               icon: Icon(
@@ -71,8 +70,6 @@ class WorshiperHomeView extends GetView<WorshiperHomeController> {
               onPressed: themeController.toggleTheme,
             ),
           ),
-
-          // Profile button
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: InkWell(
@@ -89,8 +86,6 @@ class WorshiperHomeView extends GetView<WorshiperHomeController> {
               ),
             ),
           ),
-
-          // Logout button
           IconButton(
             icon: const Icon(Iconsax.logout, size: 24),
             tooltip: "Logout",
@@ -103,7 +98,6 @@ class WorshiperHomeView extends GetView<WorshiperHomeController> {
         children: [
           const SizedBox(height: 8),
 
-          /// ───────── EXPLORE / FOLLOWING TABS ─────────
           Obx(() {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -133,7 +127,6 @@ class WorshiperHomeView extends GetView<WorshiperHomeController> {
 
           const SizedBox(height: 12),
 
-          /// ───────── FEED LIST ─────────
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
@@ -156,7 +149,7 @@ class WorshiperHomeView extends GetView<WorshiperHomeController> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: scheme.onSurface,
+                          color: scheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 8),

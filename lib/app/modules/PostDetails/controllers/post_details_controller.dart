@@ -18,7 +18,7 @@ class PostDetailsController extends GetxController {
   final commentCtrl = TextEditingController();
 
   // Client-side states for real-time UI updates
-  final isLiked = false.obs;           // Whether current user liked the post
+  late final isLiked = post.isLiked.obs;           // Whether current user liked the post
   final likesCount = 0.obs;            // Dynamic like count
   final sharesCount = 0.obs;           // Dynamic share count
 

@@ -32,6 +32,8 @@ class LeadersforWorshiperController extends GetxController {
       }
 
       applyFilters();
+    } catch (e) {
+      Get.snackbar("Error", "Failed to load leaders");
     } finally {
       isLoading.value = false;
     }
@@ -58,21 +60,37 @@ class LeadersforWorshiperController extends GetxController {
     searchQuery.value = value;
   }
 
-  /// 🚫 No unfollow in My Leaders
+  /// Instant toggle with optimistic update + rollback on error
   Future<void> toggleFollow(LeaderModel leader) async {
-    if (selectedTab.value == 0) return;
+    // Only allow follow/unfollow in Explore tab
+    if (!isExplore) return;
 
-    if (leader.isFollowing) {
-      await _repo.unfollowLeader(leader.id);
-      leader.isFollowing = false;
-    } else {
-      await _repo.followLeader(leader.id);
-      leader.isFollowing = true;
+    final wasFollowing = leader.isFollowing;
+
+    try {
+      // Optimistic update (instant UI change)
+      leader.isFollowing = !wasFollowing;
+      leaders.refresh(); // Force UI rebuild
+      applyFilters();
+
+      // Call backend
+      if (leader.isFollowing) {
+        await _repo.followLeader(leader.id);
+        Get.snackbar("Success", "Following ${leader.name}");
+      } else {
+        await _repo.unfollowLeader(leader.id);
+        Get.snackbar("Success", "Unfollowed ${leader.name}");
+      }
+    } catch (e) {
+      // Rollback on error
+      leader.isFollowing = wasFollowing;
+      leaders.refresh();
+      applyFilters();
+      Get.snackbar("Error", "Failed to update follow status");
     }
-
-    leaders.refresh();
-    applyFilters();
   }
+
+  bool get isExplore => selectedTab.value == 1;
 
   void openChat(LeaderModel leader) {
     Get.toNamed(
@@ -81,7 +99,6 @@ class LeadersforWorshiperController extends GetxController {
         'leaderId': leader.id,
         'leaderName': leader.name,
         'leaderPhoto': leader.profilePhotoUrl,
-
       },
     );
   }

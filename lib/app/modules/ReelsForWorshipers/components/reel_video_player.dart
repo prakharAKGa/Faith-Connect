@@ -49,20 +49,57 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer>
         autoPlay: false,
         looping: true,
         fit: BoxFit.cover,
-        autoDispose: false,
+        aspectRatio: 9 / 16,
         handleLifecycle: true,
-        controlsConfiguration:
-            const BetterPlayerControlsConfiguration(showControls: false),
+        autoDispose: false,
+        controlsConfiguration: const BetterPlayerControlsConfiguration(
+          showControls: false,
+        ),
+        // Very helpful for stability
+        errorBuilder: (context, errorMessage) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                const SizedBox(height: 12),
+                Text(
+                  "Can't play video\n$errorMessage",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ],
+            ),
+          );
+        },
+        // Android-specific stability
+        // Removed unsupported 'android' parameter
       ),
-      betterPlayerDataSource: BetterPlayerDataSource.network(widget.url),
+      betterPlayerDataSource: BetterPlayerDataSource.network(
+        widget.url,
+        videoFormat: BetterPlayerVideoFormat.other, // try 'hls' if you serve HLS
+        bufferingConfiguration: const BetterPlayerBufferingConfiguration(
+          minBufferMs: 10000,
+          maxBufferMs: 30000,
+          bufferForPlaybackMs: 2500,
+          bufferForPlaybackAfterRebufferMs: 5000,
+        ),
+      ),
     );
 
-    /// Bottom-nav sync ONLY
+    // Bottom nav sync
     ever(navController.index, (_) {
       if (navController.index.value == 2 && !_pausedByUser) {
         _controller.play();
       } else {
         _controller.pause();
+      }
+    });
+
+    // Optional: Listen to player errors
+    _controller.addEventsListener((event) {
+      if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
+        debugPrint("Player error: ${event.parameters?['error']}");
       }
     });
   }
@@ -94,12 +131,12 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer>
     return Stack(
       fit: StackFit.expand,
       children: [
-        /// 🎥 VIDEO (NO GESTURES)
+        // Video player with error handling
         IgnorePointer(
           child: BetterPlayer(controller: _controller),
         ),
 
-        /// ▶️ EXPLICIT PLAY / PAUSE BUTTON (CENTER)
+        // Center play/pause overlay
         Center(
           child: Material(
             color: Colors.black.withOpacity(0.35),
@@ -117,14 +154,14 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer>
           ),
         ),
 
-        /// 👤 UPLOADER INFO (BLOCKS PAGEVIEW, ALLOWS FOLLOW)
+        // Uploader info + Follow button
         Positioned(
           left: 16,
           right: 16,
           bottom: uploaderBottom + bottomSafe,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onVerticalDragStart: (_) {}, // 🔥 stops PageView stealing taps
+            onVerticalDragStart: (_) {}, // Prevents PageView swipe steal
             child: Material(
               color: Colors.transparent,
               child: Row(
@@ -170,16 +207,14 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer>
                             ],
                             const SizedBox(width: 10),
 
-                            /// ✅ FOLLOW BUTTON (NOW FIXED)
                             Obx(() {
-                              final isFollowing = reelsController
-                                  .isFollowing(widget.leaderId);
+                              final isFollowing =
+                                  reelsController.isFollowing(widget.leaderId);
 
                               return InkWell(
-                                borderRadius:
-                                    BorderRadius.circular(30),
-                                onTap: () => reelsController
-                                    .followLeader(widget.leaderId),
+                                borderRadius: BorderRadius.circular(30),
+                                onTap: () =>
+                                    reelsController.followLeader(widget.leaderId),
                                 child: Container(
                                   height: 40,
                                   padding: const EdgeInsets.symmetric(
@@ -189,15 +224,11 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer>
                                   decoration: BoxDecoration(
                                     color: isFollowing
                                         ? Colors.white
-                                        : Colors.white
-                                            .withOpacity(0.35),
-                                    borderRadius:
-                                        BorderRadius.circular(30),
+                                        : Colors.white.withOpacity(0.35),
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
                                   child: Text(
-                                    isFollowing
-                                        ? "Following"
-                                        : "Follow",
+                                    isFollowing ? "Following" : "Follow",
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,

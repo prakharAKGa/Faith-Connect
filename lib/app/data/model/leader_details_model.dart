@@ -4,9 +4,9 @@ class LeaderDetailsModel {
   final String faith;
   final String? bio;
   final String? profilePhotoUrl;
-  bool isFollowing;
+  bool isFollowing; // ← mutable, we change this
 
-   LeaderStats stats;
+  LeaderStats stats;
   final List<LeaderPost> posts;
   final List<LeaderReel> reels;
 
@@ -14,8 +14,8 @@ class LeaderDetailsModel {
     required this.id,
     required this.name,
     required this.faith,
-    required this.bio,
-    required this.profilePhotoUrl,
+    this.bio,
+    this.profilePhotoUrl,
     required this.isFollowing,
     required this.stats,
     required this.posts,
@@ -24,12 +24,12 @@ class LeaderDetailsModel {
 
   factory LeaderDetailsModel.fromJson(Map<String, dynamic> json) {
     return LeaderDetailsModel(
-      id: json['id'],
-      name: json['name'],
-      faith: json['faith'],
-      bio: json['bio'],
-      profilePhotoUrl: json['profile_photo_url'],
-      isFollowing: json['is_following'] ?? false,
+      id: json['id'] as int,
+      name: json['name'] as String,
+      faith: json['faith'] as String,
+      bio: json['bio'] as String?,
+      profilePhotoUrl: json['profile_photo_url'] as String?,
+      isFollowing: (json['is_followed'] as int? ?? 0) == 1, // ← backend sends 0/1
       stats: LeaderStats.fromJson(json['stats']),
       posts: (json['posts'] as List)
           .map((e) => LeaderPost.fromJson(e))

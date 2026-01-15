@@ -1,3 +1,4 @@
+import 'package:faithconnect/app/core/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,28 +19,24 @@ class ReelsUploadforLeaderView extends GetView<ReelsUploadforLeaderController> {
         title: const Text("Upload Reel"),
         centerTitle: true,
       ),
-
-      /// ───────── BODY ─────────
       body: Column(
         children: [
-          /// ───────── MAIN CONTENT ─────────
           Expanded(
             child: GetBuilder<ReelsUploadforLeaderController>(
-              builder: (controller) {
+              builder: (ctrl) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      /// ───────── VIDEO PREVIEW / TRIMMER ─────────
-                      if (controller.controller != null) ...[
+                      // ───────── VIDEO PREVIEW / TRIMMER ─────────
+                      if (ctrl.controller != null) ...[
                         AspectRatio(
                           aspectRatio: 9 / 16,
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
-                              border:
-                                  Border.all(color: theme.dividerColor),
+                              border: Border.all(color: theme.dividerColor),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
@@ -51,50 +48,47 @@ class ReelsUploadforLeaderView extends GetView<ReelsUploadforLeaderController> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: CropGridViewer.preview(
-                                controller: controller.controller!,
+                                controller: ctrl.controller!,
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         TrimSlider(
-                          controller: controller.controller!,
+                          controller: ctrl.controller!,
                           height: 60,
                         ),
+                        const SizedBox(height: 24),
                       ]
 
-                      /// ───────── EMPTY STATE ─────────
+                      // ───────── EMPTY STATE ─────────
                       else
                         Container(
-                          height: 320,
+                          height: 360,
                           decoration: BoxDecoration(
-                            color:
-                                theme.colorScheme.surfaceVariant,
+                            color: theme.colorScheme.surfaceVariant,
                             borderRadius: BorderRadius.circular(16),
-                            border:
-                                Border.all(color: theme.dividerColor),
+                            border: Border.all(color: theme.dividerColor),
                           ),
                           child: Column(
-                            mainAxisAlignment:
-                                MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.video_collection_outlined,
-                                size: 80,
-                                color: theme
-                                    .colorScheme.onSurfaceVariant,
+                                size: 90,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 20),
                               Text(
                                 "No video selected",
-                                style:
-                                    theme.textTheme.titleMedium,
+                                style: theme.textTheme.titleLarge,
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                "Choose from Gallery or Camera",
-                                style:
-                                    theme.textTheme.bodySmall,
+                                "Choose from Gallery or record with Camera",
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
                               ),
                             ],
                           ),
@@ -102,23 +96,28 @@ class ReelsUploadforLeaderView extends GetView<ReelsUploadforLeaderController> {
 
                       const SizedBox(height: 32),
 
-                      /// ───────── PICK BUTTONS ─────────
+                      // ───────── CAPTION FIELD ─────────
+                      CustomTextField(
+                        controller: ctrl.captionCtrl,
+                        hintText: "Write a caption...",
+                        icon: Icons.text_fields_rounded,
+                        maxLines: 3,
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // ───────── PICK BUTTONS ─────────
                       Row(
                         children: [
                           Expanded(
                             child: OutlinedButton.icon(
-                              icon: const Icon(
-                                  Icons.photo_library_outlined),
+                              icon: const Icon(Icons.photo_library_outlined),
                               label: const Text("Gallery"),
-                              onPressed: () => controller.pickVideo(
-                                  ImageSource.gallery),
+                              onPressed: () => ctrl.pickVideo(ImageSource.gallery),
                               style: OutlinedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(
-                                        vertical: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                             ),
@@ -126,18 +125,13 @@ class ReelsUploadforLeaderView extends GetView<ReelsUploadforLeaderController> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: OutlinedButton.icon(
-                              icon: const Icon(
-                                  Icons.videocam_outlined),
+                              icon: const Icon(Icons.videocam_outlined),
                               label: const Text("Camera"),
-                              onPressed: () => controller.pickVideo(
-                                  ImageSource.camera),
+                              onPressed: () => ctrl.pickVideo(ImageSource.camera),
                               style: OutlinedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(
-                                        vertical: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                             ),
@@ -153,56 +147,44 @@ class ReelsUploadforLeaderView extends GetView<ReelsUploadforLeaderController> {
             ),
           ),
 
-          /// ───────── BOTTOM ACTION AREA ─────────
+          // ───────── BOTTOM ACTION AREA ─────────
           SafeArea(
             top: false,
             child: Padding(
-              // 🔥 KEY FIX — prevents bottom nav overlap
-              padding: EdgeInsets.only(
-                bottom: bottomInset + 72,
-              ),
+              padding: EdgeInsets.only(bottom: bottomInset + 72),
               child: Container(
-                padding:
-                    const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                 decoration: BoxDecoration(
                   color: theme.scaffoldBackgroundColor,
-                  border: Border(
-                    top: BorderSide(color: theme.dividerColor),
-                  ),
+                  border: Border(top: BorderSide(color: theme.dividerColor)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    /// ───────── PROGRESS ─────────
+                    // Progress indicator
                     Obx(
                       () => controller.isUploading.value
                           ? Column(
                               children: [
                                 LinearProgressIndicator(
-                                  value: controller
-                                              .uploadProgress
-                                              .value ==
-                                          0
+                                  value: controller.uploadProgress.value == 0
                                       ? null
-                                      : controller.uploadProgress
-                                          .value,
+                                      : controller.uploadProgress.value,
                                   minHeight: 8,
-                                  borderRadius:
-                                      BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   "${(controller.uploadProgress.value * 100).toStringAsFixed(0)}% uploaded",
-                                  style:
-                                      theme.textTheme.bodySmall,
+                                  style: theme.textTheme.bodySmall,
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 16),
                               ],
                             )
                           : const SizedBox.shrink(),
                     ),
 
-                    /// ───────── UPLOAD BUTTON ─────────
+                    // Upload Button
                     SizedBox(
                       width: double.infinity,
                       height: 54,
@@ -212,29 +194,23 @@ class ReelsUploadforLeaderView extends GetView<ReelsUploadforLeaderController> {
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child:
-                                      CircularProgressIndicator(
+                                  child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     color: Colors.white,
                                   ),
                                 )
                               : const Icon(Icons.cloud_upload),
                           label: Text(
-                            controller.isUploading.value
-                                ? "Uploading..."
-                                : "Upload Reel",
+                            controller.isUploading.value ? "Uploading..." : "Upload Reel",
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          onPressed: controller.isUploading.value
-                              ? null
-                              : controller.uploadReel,
+                          onPressed: controller.isUploading.value ? null : controller.uploadReel,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),

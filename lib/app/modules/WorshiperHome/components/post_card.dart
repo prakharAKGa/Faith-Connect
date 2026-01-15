@@ -72,7 +72,7 @@ class _PostCardState extends State<PostCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Media (top)
+              // Media
               if (_hasMedia)
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -103,13 +103,13 @@ class _PostCardState extends State<PostCard> {
                       : _buildVideoPlayer(),
                 ),
 
-              // Content area
+              // Content
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Leader info + time
+                    // Leader + Time
                     Row(
                       children: [
                         CircleAvatar(
@@ -162,7 +162,7 @@ class _PostCardState extends State<PostCard> {
 
                     const SizedBox(height: 24),
 
-                    // Action Buttons (modern iconsax + dynamic like)
+                    // Action Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -171,7 +171,7 @@ class _PostCardState extends State<PostCard> {
                           activeIcon: Iconsax.heart5,
                           count: widget.post.likesCount,
                           color: Colors.redAccent,
-                          isActive: false, // TODO: use controller.isLiked if available
+                          isActive: widget.post.isLiked,  // ← Uses isLiked from model
                           onTap: widget.onLike,
                         ),
                         _ActionButton(
@@ -192,11 +192,11 @@ class _PostCardState extends State<PostCard> {
                         ),
                         _ActionButton(
                           icon: Iconsax.save_add,
-                          activeIcon: Iconsax.save_add,
+                          activeIcon: Iconsax.save_add5,
                           count: widget.post.savesCount,
                           color: Colors.purpleAccent,
                           isActive: false,
-                          onTap: () {}, // TODO: Add save logic
+                          onTap: () {}, // TODO: Add save logic later
                         ),
                       ],
                     ),
@@ -237,7 +237,7 @@ class _PostCardState extends State<PostCard> {
   }
 }
 
-// Modern Action Button with active state support
+// Action Button
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final IconData activeIcon;

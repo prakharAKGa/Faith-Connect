@@ -3,6 +3,7 @@ import 'package:faithconnect/app/modules/LeadersforWorshiper/components/faith_ch
 import 'package:faithconnect/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 class LeaderCard extends StatelessWidget {
   final LeaderModel leader;
   final bool isExplore;
@@ -20,6 +21,7 @@ class LeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () => Get.toNamed(
@@ -44,7 +46,7 @@ class LeaderCard extends StatelessWidget {
                     : null,
               ),
               const SizedBox(width: 14),
-        
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,30 +75,40 @@ class LeaderCard extends StatelessWidget {
                   ],
                 ),
               ),
-        
+
               const SizedBox(width: 12),
-        
+
               SizedBox(
                 height: 36,
                 child: ElevatedButton(
                   onPressed: isExplore ? onFollowTap : onMessageTap,
                   style: ElevatedButton.styleFrom(
+                    // Common style for both buttons
+                    elevation: 1,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    // Dynamic background & text color
                     backgroundColor: isExplore
                         ? (leader.isFollowing
                             ? scheme.surfaceVariant
                             : scheme.primary)
                         : scheme.primary,
-                    foregroundColor: leader.isFollowing
-                        ? scheme.onSurface
-                        : Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    foregroundColor: isExplore
+                        ? (leader.isFollowing
+                            ? scheme.onSurface
+                            : Colors.white)
+                        : Colors.white, // Message button always white text
                   ),
                   child: Text(
                     isExplore
                         ? (leader.isFollowing ? 'Following' : 'Follow')
                         : 'Message',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ),

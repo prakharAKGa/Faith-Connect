@@ -27,10 +27,7 @@ class ReelsForWorshipersView extends GetView<ReelsForWorshipersController> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
-          ),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Get.back(),
         ),
         actions: [
@@ -43,140 +40,121 @@ class ReelsForWorshipersView extends GetView<ReelsForWorshipersController> {
         ],
       ),
       body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: Colors.white),
-          );
+        if (controller.isLoading.value && controller.reels.isEmpty) {
+          return const Center(child: CircularProgressIndicator(color: Colors.white));
         }
 
-        if (controller.reels.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Iconsax.mobile, size: 80, color: Colors.white70),
-                const SizedBox(height: 16),
-                const Text(
-                  "No reels available yet",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
+        return RefreshIndicator(
+          onRefresh: controller.fetchReels,
+          color: Colors.white,
+          backgroundColor: Colors.black87,
+          displacement: 60,
+          child: PageView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: controller.reels.length + (controller.isLoading.value ? 1 : 0),
+            onPageChanged: controller.onPageChanged,
+            itemBuilder: (context, index) {
+              // Show loading at the end while fetching more (optional future improvement)
+              if (index == controller.reels.length) {
+                return const Center(child: CircularProgressIndicator(color: Colors.white));
+              }
+
+              final reel = controller.reels[index];
+
+              if (reel.videoUrl == null || reel.videoUrl!.trim().isEmpty) {
+                return const Center(
+                  child: Text("No video available", style: TextStyle(color: Colors.white70)),
+                );
+              }
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Video with forced vertical feel
+                  ReelVideoPlayer(
+                    url: reel.videoUrl!,
+                    leaderId: reel.leaderId,
+                    leaderName: reel.leaderName,
+                    leaderPhoto: reel.leaderPhoto,
+                    caption: reel.caption,
+                    isVerified:  true,
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Check back later for inspiring content",
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
 
-        return PageView.builder(
-          scrollDirection: Axis.vertical,
-          itemCount: controller.reels.length,
-          onPageChanged: controller.onPageChanged,
-          itemBuilder: (context, index) {
-            final reel = controller.reels[index];
-
-            if (reel.videoUrl == null || reel.videoUrl!.trim().isEmpty) {
-              return const Center(
-                child: Text(
-                  "No video available",
-                  style: TextStyle(color: Colors.white70),
-                ),
-              );
-            }
-
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                /// 🎥 VIDEO PLAYER (contains Follow button)
-                ReelVideoPlayer(
-                  url: reel.videoUrl!,
-                  leaderId: reel.leaderId,
-                  leaderName: reel.leaderName,
-                  leaderPhoto: reel.leaderPhoto,
-                ),
-
-                /// 🌑 BOTTOM GRADIENT (❗ MUST NOT BLOCK TAPS)
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: 260,
-                  child: IgnorePointer(
-                    ignoring: true, // 🔥 THIS FIXES FOLLOW TAP
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.9),
-                          ],
+                  // Bottom dark gradient
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 260,
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.92),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                /// 👉 RIGHT-SIDE ACTION BUTTONS
-                Positioned(
-                  right: 16,
-                  bottom: 160,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _ActionButton(
-                        icon: controller.isLiked(reel.id)
-                            ? Iconsax.heart5
-                            : Iconsax.heart,
-                        count: reel.likesCount,
-                        color: controller.isLiked(reel.id)
-                            ? Colors.redAccent
-                            : Colors.white,
-                        onTap: () => controller.likeReel(reel),
-                      ),
-                      _ActionButton(
-                        icon: Iconsax.message_text,
-                        count: reel.commentsCount,
-                        color: Colors.white,
-                        onTap: () => controller.openComments(reel),
-                      ),
-                      _ActionButton(
-                        icon: Iconsax.repeat,
-                        count: reel.sharesCount,
-                        color: Colors.white,
-                        onTap: () => controller.shareReel(reel),
-                      ),
-                      _ActionButton(
-                        icon: Iconsax.save_add,
-                        count: reel.savesCount,
-                        color: controller.isSaved(reel.id)
-                            ? Colors.yellowAccent
-                            : Colors.white,
-                        onTap: () => controller.saveReel(reel),
-                      ),
-                    ],
+                  // Right side action buttons
+                  Positioned(
+                    right: 16,
+                    bottom: 160,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _ActionButton(
+                          icon: controller.isLiked(reel.id)
+                              ? Iconsax.heart5
+                              : Iconsax.heart,
+                          count: reel.likesCount,
+                          color: controller.isLiked(reel.id)
+                              ? Colors.redAccent
+                              : Colors.white,
+                          onTap: () => controller.likeReel(reel),
+                        ),
+                        _ActionButton(
+                          icon: Iconsax.message_text,
+                          count: reel.commentsCount,
+                          color: Colors.white,
+                          onTap: () => controller.openComments(reel),
+                        ),
+                        _ActionButton(
+                          icon: Iconsax.repeat,
+                          count: reel.sharesCount,
+                          color: Colors.white,
+                          onTap: () => controller.shareReel(reel),
+                        ),
+                        _ActionButton(
+                          icon: controller.isSaved(reel.id)
+                              ? Iconsax.save_add5
+                              : Iconsax.save_add,
+                          count: reel.savesCount,
+                          color: controller.isSaved(reel.id)
+                              ? Colors.yellowAccent
+                              : Colors.white,
+                          onTap: () => controller.saveReel(reel),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         );
       }),
     );
   }
 }
 
-/// 🔘 Right-side Action Button
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final int count;
